@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhaserSync Config</title>
+    <link href='../node_modules/css.gg/icons-compressed/icons.css' rel='stylesheet'>
+    <link rel="stylesheet" href="styles/setup.css">
+</head>
+<body>
+    <section class="screen" id="landing-screen">
+        <div class="title-wrapper">
+            <h1 class="title">Welcome to PhaserSync</h1>
+            <p class="subtitle">Let's configure the beams!</p>
+        </div>
+        <div class="continue-wrapper">
+            <button class="button" id="btn-landing-continue"><p>Continue</p></button>
+        </div>
+    </section>
+
+    <section class="screen config-screen is-hidden" id="config-wizard-screen">
+        <div class="title-wrapper">
+            <h1 class="title">Do you want the noob or the expert configuration?</h1>
+            <p class="subtitle">it's ok being a noob...</p>
+        </div>
+        <div class="radio-form-wrapper" id="wizard-form">
+            <div class="radio-wrapper" id="radio-wizard-noob">
+                <div class="check"><div class="inside"></div></div>
+                <input type="radio" value="wizard-noob">
+                <label>Noob</label>
+            </div>
+            <div class="radio-wrapper" id="radio-wizard-expert" style="margin-bottom: 0;">
+                <div class="check"><div class="inside"></div></div>
+                <input type="radio" value="wizard-expert">
+                <label>Expert</label>
+            </div>
+        </div>
+        <div class="continue-wrapper">
+            <button class="button" id="btn-wizard-continue"><p>Continue</p></button>
+        </div>
+    </section>
+
+    <section class="screen config-screen is-hidden" id="config-noob-screen">
+        <div class="title-wrapper">
+            <h1 class="title">Give a name to this device:</h1>
+            <p class="subtitle">You could call it "Juan"...</p>
+        </div>
+        <div class="input-wrapper">
+            <input type="text" placeholder="Juan" id="device-name">
+        </div>
+        <div class="continue-wrapper">
+            <button class="button" id="btn-name-continue"><p>Continue</p></button>
+        </div>
+    </section>
+
+    <section class="screen config-screen is-hidden" id="config-noob-screen2">
+        <div class="title-wrapper">
+            <h1 class="title">Do you want to require a PIN for every incoming package?</h1>
+            <p class="subtitle">You can change this setting later</p>
+        </div>
+        <div class="radio-form-wrapper sameline" id="pin-form">
+            <div class="radio-wrapper" id="pin-yes">
+                <div class="check"><div class="inside"></div></div>
+                <input type="radio" value="yes">
+                <label>Yep</label>
+            </div>
+            <div class="radio-wrapper" id="pin-no">
+                <div class="check"><div class="inside"></div></div>
+                <input type="radio" value="no">
+                <label>Nope</label>
+            </div>
+        </div>
+        <div class="input-wrapper is-hidden" id="pin-wrapper">
+            <h1>Assign PIN:</h1>
+            <input type="number" placeholder="1234" id="server-pin">
+        </div>
+        <div class="continue-wrapper">
+            <button class="button" id="btn-pin-continue"><p>Continue</p></button>
+        </div>
+    </section>
+
+    <section class="screen config-screen is-hidden" id="config-noob-screen3">
+        <div class="title-wrapper">
+            <h1 class="title">Assign your mailbox location:</h1>
+            <p class="subtitle">You can change this setting later</p>
+        </div>
+        <div class="input-wrapper">
+            <div class="file-input" id="system-path">
+                <button class="button">
+                    <i class="gg-folder"></i>
+                </button>
+                <span><p>Choose folder</p></span>
+            </div>
+        </div>
+        <div class="continue-wrapper">
+            <button class="button" id="btn-path-continue"><p>Continue</p></button>
+        </div>
+    </section>
+
+    <section class="screen config-screen is-hidden" id="config-expert-screen">
+        <div class="title-wrapper">
+            <h1 class="title">Please assign a port:</h1>
+            <p class="subtitle">You can change this setting later</p>
+        </div>
+        <div class="input-wrapper">
+            <input type="number" placeholder="3000" id="server-port">
+        </div>
+        <div class="continue-wrapper">
+            <button class="button" id="btn-port-continue"><p>Continue</p></button>
+        </div>
+    </section>
+
+    <section class="screen" id="setup-finish">
+        <div class="title-wrapper">
+            <h1 class="title">We're setting everything up...</h1>
+        </div>
+        <div class="gif-wrapper">
+            <img src="setting_up.gif" alt="Penguin Hitting Keyboard">
+        </div>
+    </section>
+
+    <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+
+    <script src="jquery.min.js"></script>
+    <script src="setup.js"></script>
+
+	<script>if (window.module) module = window.module</script>
+
+</body>
+</html>
