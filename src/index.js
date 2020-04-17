@@ -127,6 +127,8 @@ const startServer = () => {
 // ELECTRON APP EVENT LISTENERS
 
 app.on('ready', () => {
+	ip = internalIP.v4.sync()
+
 	if (fs.existsSync(`${__dirname}/settings.json`)) {
 		const dataJSON = fs.readFileSync(`${__dirname}/settings.json`)
 		settings = JSON.parse(dataJSON)
