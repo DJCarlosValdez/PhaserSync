@@ -1,2 +1,2 @@
 
-Copyright (C) 2020 
+Copyright Carlos Valdez (C) 2020 

@@ -1,6 +1,6 @@
 {
   "name": "phasersync",
-  "productName": "phasersync",
+  "productName": "PhaserSync",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": "src/index.js",
@@ -24,7 +24,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "phasersync"
+            "name": "PhaserSync"
           }
         },
         {
@@ -45,7 +45,15 @@
     }
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
+    "body-parser": "^1.19.0",
+    "css.gg": "^1.0.6",
+    "electron-squirrel-startup": "^1.0.0",
+    "express": "^4.17.1",
+    "internal-ip": "^6.0.0",
+    "jump.js": "^1.0.2",
+    "moment": "^2.24.0",
+    "open": "^7.0.3",
+    "qrcode": "^1.4.4"
   },
   "devDependencies": {
     "@electron-forge/cli": "6.0.0-beta.45",
@@ -53,6 +61,12 @@
     "@electron-forge/maker-rpm": "6.0.0-beta.45",
     "@electron-forge/maker-squirrel": "6.0.0-beta.45",
     "@electron-forge/maker-zip": "6.0.0-beta.45",
-    "electron": "8.2.1"
+    "electron": "8.2.1",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1"
   }
 }
