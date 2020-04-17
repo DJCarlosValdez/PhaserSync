@@ -10,6 +10,7 @@ const qrcode = require('qrcode')
 
 // Request Handlers
 const imageSync = require('./routes/imageSync')
+const fileSync = require('./routes/fileSync')
 
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
 	app.quit()
@@ -17,7 +18,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 
 const bodyParser = require('body-parser')
 server.use(bodyParser.raw({
-	type: 'image/*',
+	type: '*/*',
 	limit: '100mb'
 }))
 server.use(bodyParser.text())
@@ -123,6 +124,18 @@ const startServer = () => {
 	})
 }
 
+// ELECTRON APP EVENT LISTENERS
+
+app.on('ready', () => {
+	if (fs.existsSync(`${__dirname}/settings.json`)) {
+		const dataJSON = fs.readFileSync(`${__dirname}/settings.json`)
+		settings = JSON.parse(dataJSON)
+		startServer()
+	} else {
+		createWindow('setup')
+	}
+})
+
 app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') {
 		app.quit()
@@ -135,9 +148,19 @@ app.on('activate', () => {
 	}
 })
 
+// API ENDPOINTS
+
 server.post('/sendimage', (req, res) => {
 	imageSync(req, res, settings.paths.images).then(() => {
 		console.log('Image Saved!')
+	}).catch(err => {
+		console.error(err)
+	})
+})
+
+server.post('/sendfile', (req, res) => {
+	fileSync(req, res, settings.paths.files).then(() => {
+		console.log('File Saved!')
 	}).catch(err => {
 		console.error(err)
 	})
@@ -148,6 +171,8 @@ server.post('/test', (req, res) => {
 	res.send('Hello World!')
 })
 
+// ELECTRON HANDLERS
+
 ipcMain.on('createSettingsFile', (event, args) => {
 	console.log(args)
 	fs.writeFile(`${__dirname}/settings.json`, JSON.stringify(args), (err) => {
@@ -155,6 +180,7 @@ ipcMain.on('createSettingsFile', (event, args) => {
 			console.error(err)
 		} else {
 			console.log('Settings file created')
+			settings = args
 			startServer()
 		}
 	})

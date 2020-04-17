@@ -16,9 +16,11 @@ const settings = {
 			value: undefined
 		}
 	},
+	// IDEA: Add option in expert mode to add specific paths
 	paths: {
 		root: undefined,
-		images: undefined
+		images: undefined,
+		files: undefined
 	}
 }
 
@@ -122,6 +124,7 @@ $('#btn-path-continue').on('click', () => {
 		} else {
 			settings.paths.root = path
 			settings.paths.images = `${path}\\Images`
+			settings.paths.files = `${path}\\Files`
 			setUp()
 		}
 	} else {
