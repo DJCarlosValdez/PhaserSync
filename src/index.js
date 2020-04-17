@@ -1,57 +1,160 @@
-const { app, BrowserWindow } = require('electron');
+const electron = require('electron')
+const { app, dialog, BrowserWindow, Menu, Tray, ipcMain } = electron
+const fs = require('fs')
+const internalIP = require('internal-ip')
+// const moment = require('moment')
+const express = require('express')
+const server = express()
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+const qrcode = require('qrcode')
+
+// Request Handlers
+const imageSync = require('./routes/imageSync')
+
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
-  app.quit();
+	app.quit()
 }
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
+const bodyParser = require('body-parser')
+server.use(bodyParser.raw({
+	type: 'image/*',
+	limit: '100mb'
+}))
+server.use(bodyParser.text())
 
-const createWindow = () => {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-  });
+let mainWindow, tray
+let settings, ip
 
-  // and load the index.html of the app.
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
+/**
+ * @param {('setup'|'server')} screen The screen to create
+ */
+const createWindow = (screen) => {
+	return new Promise((resolve, reject) => {
+		const display = electron.screen.getPrimaryDisplay()
+		const displayWidth = display.bounds.width
+		const displayHeight = display.bounds.height
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+		let settings = {
+			width: 1050,
+			height: 800,
+			show: true,
+			// frame: false,
+			webPreferences: {
+				nodeIntegration: true
+			}
+		}
 
-  // Emitted when the window is closed.
-  mainWindow.on('closed', () => {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null;
-  });
-};
+		if (screen === 'server') {
+			settings = {
+				width: 300,
+				height: 400,
+				x: displayWidth - 300,
+				y: displayHeight - 400,
+				movable: false,
+				show: false,
+				frame: false,
+				fullscreenable: false,
+				resizable: false,
+				webPreferences: {
+					nodeIntegration: true
+				}
+			}
+		}
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+		mainWindow = new BrowserWindow(settings)
 
-// Quit when all windows are closed.
+		if (screen === 'setup') {
+			mainWindow.loadURL(`file://${__dirname}/setup.html`)
+		} else if (screen === 'server') {
+			mainWindow.loadURL(`file://${__dirname}/main.html`)
+		}
+
+		mainWindow.on('closed', () => {
+			mainWindow = null
+		})
+
+		resolve()
+	})
+}
+
+app.on('ready', () => {
+	ip = internalIP.v4.sync()
+
+	if (fs.existsSync(`${__dirname}/settings.json`)) {
+		const dataJSON = fs.readFileSync(`${__dirname}/settings.json`)
+		settings = JSON.parse(dataJSON)
+		startServer()
+	} else {
+		createWindow('setup')
+	}
+})
+
+const startServer = () => {
+	server.listen({
+		port: settings.network.port,
+		host: ip
+	}, () => {
+		console.log('PhaserSync Server Booted Up!')
+
+		createWindow('server').then(() => {
+			qrcode.toString(`http://${ip}:${settings.network.port}`, { type: 'terminal' }, (err, string) => {
+				if (err) {
+					console.error(err)
+				} else {
+					console.log(string)
+				}
+			})
+		})
+	})
+}
+
 app.on('window-all-closed', () => {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+	if (process.platform !== 'darwin') {
+		app.quit()
+	}
+})
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow();
-  }
-});
+	if (mainWindow === null) {
+		createWindow()
+	}
+})
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+server.post('/sendimage', (req, res) => {
+	imageSync(req, res, settings.paths.images).then(() => {
+		console.log('Image Saved!')
+	}).catch(err => {
+		console.error(err)
+	})
+})
+
+server.post('/test', (req, res) => {
+	console.log(req.body)
+	res.send('Hello World!')
+})
+
+ipcMain.on('createSettingsFile', (event, args) => {
+	console.log(args)
+	fs.writeFile(`${__dirname}/settings.json`, JSON.stringify(args), (err) => {
+		if (err) {
+			console.error(err)
+		} else {
+			console.log('Settings file created')
+			startServer()
+		}
+	})
+})
+
+ipcMain.on('killSetupScreen', (event, args) => {
+	mainWindow.hide()
+})
+
+ipcMain.on('chooseDirectory', (event, args) => {
+	dialog.showOpenDialog(mainWindow, {
+		properties: ['openDirectory', 'promptToCreate']
+	}).then(e => {
+		if (e.filePaths) {
+			event.reply('inputPath', e.filePaths[0])
+		}
+	})
+})
