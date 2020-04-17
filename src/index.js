@@ -38,7 +38,9 @@ const createWindow = (screen) => {
 			width: 1050,
 			height: 800,
 			show: true,
-			// frame: false,
+			frame: false,
+			resizable: false,
+			fullscreenable: false,
 			webPreferences: {
 				nodeIntegration: true
 			}
@@ -67,6 +69,8 @@ const createWindow = (screen) => {
 			mainWindow.loadURL(`file://${__dirname}/setup.html`)
 		} else if (screen === 'server') {
 			mainWindow.loadURL(`file://${__dirname}/main.html`)
+			// Uncomment when you finally fixed the code - Probably never...
+			// windowOutside()
 		}
 
 		mainWindow.on('closed', () => {
@@ -77,17 +81,27 @@ const createWindow = (screen) => {
 	})
 }
 
-app.on('ready', () => {
-	ip = internalIP.v4.sync()
+const createTray = () => {
+	tray = new Tray(`${__dirname}/icon.png`)
+	const contextMenu = Menu.buildFromTemplate([
+		{ label: 'Quit', type: 'normal', role: 'quit' }
+	])
+	tray.setContextMenu(contextMenu)
+	tray.setToolTip('PhaserSync')
+	tray.on('click', event => {
+		toggleWindow()
+	})
+}
 
-	if (fs.existsSync(`${__dirname}/settings.json`)) {
-		const dataJSON = fs.readFileSync(`${__dirname}/settings.json`)
-		settings = JSON.parse(dataJSON)
-		startServer()
-	} else {
-		createWindow('setup')
-	}
-})
+const toggleWindow = () => {
+	mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
+}
+
+const windowOutside = () => {
+	mainWindow.on('blur', () => {
+		mainWindow.hide()
+	})
+}
 
 const startServer = () => {
 	server.listen({
@@ -97,6 +111,7 @@ const startServer = () => {
 		console.log('PhaserSync Server Booted Up!')
 
 		createWindow('server').then(() => {
+			createTray()
 			qrcode.toString(`http://${ip}:${settings.network.port}`, { type: 'terminal' }, (err, string) => {
 				if (err) {
 					console.error(err)
