@@ -1,0 +1,211 @@
+@use "fonts/fonts.sass"
+@import "elements/functions.sass"
+@import "elements/colours.sass"
+@import "elements/shadows.sass"
+
+body
+    display: grid
+    height: 100vh
+    margin: 0
+    justify-items: center
+    align-items: center
+    font-family: 'Lato', sans-serif
+    // overflow: hidden
+    &::-webkit-scrollbar
+        display: none
+
+h1, h2, h3, h4, h5, h6, p
+    margin: 0
+
+.is-hidden
+    display: none !important
+
+.screen
+    height: 100vh
+    width: 100%
+    display: flex
+    flex-direction: column
+
+    .upper-bar
+        position: absolute
+        height: 22%
+        width: 100%
+        display: flex
+        flex-direction: row
+        align-items: center
+        justify-content: space-between
+        box-shadow: $box-shadow-2
+        padding: 0 20px
+
+        .icons-wrapper
+            display: flex
+            align-items: center
+            margin-right: 40px
+            i
+                --ggs: 1.25
+                margin: 0 15px
+                &:hover
+                    cursor: pointer
+            .toggle-wrapper
+                display: flex
+                justify-content: center
+                align-items: center
+                flex-direction: column
+                margin-top: 6px
+                .toggle-status
+                    position: relative
+                    top: 5px
+                    height: 7px
+                    width: 7px
+                    border-radius: 7px
+                    margin-top: 1px
+                    background-color: $red
+                    transition: 0.4s
+                    transition-timing-function: 'ease-out'
+                    &.is-active
+                        background-color: $green
+
+        h1
+            margin-bottom: 10px
+            font-weight: 300
+            font-size: 1.75rem
+
+    .file-list
+        height: 100vh
+        padding-top: 32%
+        display: flex
+        flex-direction: column
+        align-items: center
+        .file
+            display: flex
+            align-items: center
+            justify-content: flex-start
+            height: 70px
+            width: 77%
+            border-radius: 17px
+            background-color: white  
+            box-shadow: $box-shadow-1
+            padding: 0px 20px
+            img
+                height: 50px
+                width: 50px
+            .name-wrapper
+                margin-left: 20px
+                h1
+                    font-size: 1.25rem
+                h1, p
+                    text-overflow: ellipsis
+                    max-width: 150px
+                    white-space: nowrap
+                    overflow: hidden
+
+            .device-wrapper 
+                h1
+                    text-overflow: ellipsis
+                    max-width: 210px
+                    white-space: nowrap
+                    overflow: hidden
+                    font-size: 1.25rem
+
+            .accept-wrapper, .remove-wrapper
+                display: flex
+                justify-content: center
+                align-items: center
+                margin-left: auto
+                span
+                    display: flex
+                    justify-content: center
+                    align-items: center
+                    height: 30px
+                    width: 30px
+                    background-color: gray
+                    border-radius: 30px
+                    color: white
+                    margin: 0px 5px
+                    &:hover
+                        cursor: pointer
+                .accept
+                    background-color: $green
+                    i
+                        --ggs: 1.15
+                .deny, .remove
+                    background-color: $red
+
+                .open
+                    background-color: $lightorange
+                    i
+                        --ggs: 0.75
+
+            .loading-wrapper
+                display: flex
+                justify-content: center
+                align-items: center
+                margin-left: auto
+
+                .loading
+                    i
+                        border-top-color: $lightorange
+                        --ggs: 1
+
+.modal
+    position: absolute
+    height: 100vh
+    width: 100%
+    display: flex
+    justify-content: center
+    align-items: center
+    .modal-bg
+        position: absolute
+        height: 100vh
+        width: 100%
+        background-color: black
+        opacity: 0.4
+        transition: 0.4s
+        &:hover
+            cursor: pointer
+    .modal-box
+        display: flex
+        justify-content: center
+        align-items: center
+        height: 250px
+        width: 250px
+        border-radius: 20px
+        background-color: white
+        z-index: 9
+        .qr-code
+            display: flex
+            justify-content: center
+            align-items: center
+            height: inherit
+            width: inherit
+            svg
+                height: 85%
+                width: 85%
+
+.notification-bar
+    position: absolute
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    bottom: 0px
+    width: 100%
+    transition: 0.4s
+    .notification-box
+        display: flex
+        justify-content: center
+        align-items: center
+        width: 90%
+        height: 50px
+        margin-bottom: 20px
+        border-radius: 14px
+        box-shadow: $box-shadow-2
+
+        .message
+            margin-left: 20px
+
+        i
+            --ggs: 1.15
+
+        p
+            font-size: 1.15rem

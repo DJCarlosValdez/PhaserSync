@@ -1,0 +1,41 @@
+$divider-background-color: $grey-lighter !default
+$divider-thickness: .1rem !default
+$divider-font-size: 0.75rem !default
+$divider-color: $grey-light !default
+$divider-content-background-color : $white !default
+
+.is-divider, .is-divider-vertical
+  display: block
+  position: relative
+  border-top: $divider-thickness solid $divider-background-color
+  height: $divider-thickness
+  margin: 2rem 0
+  text-align: center
+
+
+.is-divider[data-content]::after, .is-divider-vertical[data-content]::after
+  background: $divider-content-background-color
+  color: $divider-color
+  content: attr(data-content)
+  display: inline-block
+  font-size: $divider-font-size
+  padding: .4rem .8rem
+  -webkit-transform: translateY(-1.1rem)
+  -ms-transform: translateY(-1.1rem)
+  transform: translateY(-1.1rem)
+  text-align: center
+
+.is-divider,
+.is-divider-vertical
+  @each $name, $pair in mergeColorMaps($colors, $shades)
+    $color: nth($pair, 1)
+    $color-invert: nth($pair, 2)
+    &.is-#{$name}
+      border-top-color: $color
+
+      &[data-content]::after, &[data-content]::after
+        background: $color-invert
+        color: $color
+
+      &::before
+        border-left-color: $color

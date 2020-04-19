@@ -1,12 +1,92 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Hello World!</title>
-    <link rel="stylesheet" href="index.css">
-  </head>
-  <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
-  </body>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>PhaserSync</title>
+    <link href='../node_modules/css.gg/icons-compressed/icons.css' rel='stylesheet'>
+	<link rel="stylesheet" href="styles/tray.css">
+</head>
+
+<body>
+	<div class="screen">
+		<div class="upper-bar">
+			<div class="device-wrapper">
+				<h1 id="device-name">Xipe</h1>
+				<p id="device-ip">192.168.15.6</p>
+			</div>
+			<div class="icons-wrapper">
+				<i class="gg-qr" id="show-qr"></i>
+				<div id="toggle-bolt" class="toggle-wrapper">
+					<i class="gg-bolt" id="toggle-bolt"></i>
+					<span class="toggle-status"></span>
+				</div>
+				<div id="toggle-data" class="toggle-wrapper">
+					<i class="gg-data" id="toggle-data"></i>
+					<span class="toggle-status is-active" style="top: 8px !important"></span>
+				</div>
+			</div>
+		</div>
+		<div class="file-list">
+			
+		</div>
+	</div>
+
+	<div class="modal is-hidden" id="qr-modal">
+		<div class="modal-box">
+			<div class="qr-code"></div>
+		</div>
+		<div class="modal-bg"></div>
+	</div>
+
+	<div class="notification-bar">
+	</div>
+
+	<div class="templates is-hidden">
+		<div class="template-notification-box is-hidden">
+			<div class="icon">
+				<i class=""></i>
+			</div>
+			<div class="message">
+				<p>Data portal activated</p>
+			</div>
+		</div>
+
+		<div class="template-file is-hidden">
+			<div class="icon-wrapper file-level-1 is-hidden">
+				<img src="fileIcons/Document.png" class="icon">
+			</div>
+			<div class="name-wrapper file-level-1 is-hidden">
+				<h1 class="file-name">TestFile</h1>
+				<p class="file-device">iPhone</p>
+			</div>
+			<div class="remove-wrapper file-level-1 is-hidden">
+				<span class="open"><i class="gg-folder"></i></span>
+				<span class="remove"><i class="gg-close"></i></span>
+			</div>
+			<div class="device-wrapper file-level-2 is-hidden">
+				<h1 class="device-name">iPhone</h1>
+				<p class="file-type">Word Document</p>
+			</div>
+			<div class="accept-wrapper file-level-2 is-hidden">
+				<span class="accept"><i class="gg-check"></i></span>
+				<span class="deny"><i class="gg-close"></i></span>
+			</div>
+			<div class="loading-wrapper is-hidden">
+				<i class="gg-spinner-alt"></i>
+			</div>
+		</div>
+	</div>
+
+	<script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+
+	<script src="jquery.min.js"></script>
+	<script src="moment.min.js"></script>
+	<script src="styles/anime/lib/anime.min.js"></script>
+    <script src="main.js"></script>
+
+	<script>if (window.module) module = window.module</script>
+</body>
+
 </html>

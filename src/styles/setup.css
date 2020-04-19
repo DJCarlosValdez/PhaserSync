@@ -1,4 +1,4 @@
-@use "fonts.sass" {}body {
+@use "fonts/fonts.sass" {}body {
   display: -ms-grid;
   display: grid;
   height: 100vh;

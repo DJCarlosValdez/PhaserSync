@@ -124,6 +124,7 @@ $('#btn-path-continue').on('click', () => {
 		} else {
 			settings.paths.root = path
 			settings.paths.images = `${path}\\Images`
+			settings.paths.videos = `${path}\\Videos`
 			settings.paths.files = `${path}\\Files`
 			setUp()
 		}

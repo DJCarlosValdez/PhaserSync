@@ -12,25 +12,32 @@ const writeFile = (path, deviceName, file) => {
 		let fileExists = false
 		let fi = 0
 
-		let fileType, fileWritePath
-
-		if (file.type === 'pdf') {
-			fileType = 'pdf'
-		} else if (file.type === 'vnd.openxmlformats-officedocument.wordprocessingml.document') {
+		let fileWritePath
+		let fileType = file.type
+		if (fileType === 'vnd.openxmlformats-officedocument.wordprocessingml.document') {
 			fileType = 'docx'
+		} else if (fileType === 'vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+			fileType = 'xlsx'
+		} else if (fileType === 'vnd.openxmlformats-officedocument.presentationml.presentation') {
+			fileType = 'pptx'
+		} else {
+			console.log('File type: ', fileType)
 		}
 
-		if (fs.existsSync(`${path}/${deviceName}/${file.filename}.${fileType}`)) {
+		let fileName = `${file.filename}.${fileType}`
+
+		if (fs.existsSync(`${path}\\${deviceName}\\${fileName}`)) {
 			fileExists = true
 		} else {
-			fileWritePath = `${path}/${deviceName}/${file.filename}.${fileType}`
+			fileWritePath = `${path}\\${deviceName}\\${fileName}`
 		}
 
 		while (fileExists) {
 			fi++
-			if (!fs.existsSync(`${path}/${deviceName}/${file.filename}[${fi}].${fileType}`)) {
+			fileName = `${file.filename}[${fi}].${fileType}`
+			if (!fs.existsSync(`${path}\\${deviceName}\\${fileName}`)) {
 				fileExists = false
-				fileWritePath = `${path}/${deviceName}/${file.filename}[${fi}].${fileType}`
+				fileWritePath = `${path}\\${deviceName}\\${fileName}`
 			}
 		}
 
@@ -39,7 +46,7 @@ const writeFile = (path, deviceName, file) => {
 				console.error(err)
 				reject(err)
 			} else {
-				resolve()
+				resolve({ fileName: fileName.split('.')[0], path: fileWritePath })
 			}
 		})
 	})
@@ -47,45 +54,43 @@ const writeFile = (path, deviceName, file) => {
 
 const saveFile = (req, res, path) => {
 	return new Promise((resolve, reject) => {
-		if (req.headers['content-type'].split('/')[0] === 'application') {
-			const file = {
-				type: req.headers['content-type'].split('/')[1],
-				device: req.headers.device,
-				filename: req.headers.filename,
-				buffer: req.body
-			}
+		const contentType = req.headers['content-type'].split('/')[0]
 
-			let deviceName = file.device
-			if (!deviceName) {
-				deviceName = 'UnknownDevice'
-			}
+		const file = {
+			contentType: contentType,
+			type: req.headers['content-type'].split('/')[1],
+			device: req.headers.device,
+			filename: req.headers.filename,
+			buffer: req.body
+		}
 
-			if (!fs.existsSync(`${path}/${deviceName}`)) {
-				fs.mkdir(`${path}/${deviceName}`, { recursive: true }, (err) => {
-					if (err) {
-						console.error(err)
-						reject(err)
-					} else {
-						console.log('Folder created for device!')
-						writeFile(path, deviceName, file).then(() => {
-							res.send('file received')
-							resolve()
-						}).catch((err) => {
-							reject(err)
-						})
-					}
-				})
-			} else {
-				writeFile(path, deviceName, file).then(() => {
-					res.send('File received')
-					resolve()
-				}).catch((err) => {
+		let deviceName = file.device
+		if (!deviceName) {
+			deviceName = 'UnknownDevice'
+		}
+
+		if (!fs.existsSync(`${path}/${deviceName}`)) {
+			fs.mkdir(`${path}/${deviceName}`, { recursive: true }, (err) => {
+				if (err) {
+					console.error(err)
 					reject(err)
-				})
-			}
+				} else {
+					console.log('Folder created for device!')
+					writeFile(path, deviceName, file).then(result => {
+						res.send('file received')
+						resolve({ fileName: result.fileName, path: result.path })
+					}).catch((err) => {
+						reject(err)
+					})
+				}
+			})
 		} else {
-			res.status(400).send()
-			reject(new Error('Invalid Headers. Probably not an image'))
+			writeFile(path, deviceName, file).then(result => {
+				res.send('File received')
+				resolve({ fileName: result.fileName, path: result.path })
+			}).catch((err) => {
+				reject(err)
+			})
 		}
 	})
 }
