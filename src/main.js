@@ -6,6 +6,8 @@ let bolt = false
 let notifications = []
 let files = []
 
+let mapIcons = {}
+
 const generateRandomCode = (() => {
 	const USABLE_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('')
 
@@ -19,9 +21,10 @@ const generateRandomCode = (() => {
 ipcRenderer.send('loadSettingsReq')
 
 ipcRenderer.on('loadSettingsRes', (e, args) => {
+	mapIcons = args[1]
 	$('#device-name').html(args[0].deviceName)
-	$('#device-ip').html(args[1])
-	$('.qr-code').html(args[2])
+	$('#device-ip').html(args[2])
+	$('.qr-code').html(args[3])
 })
 
 const showQR = () => {
@@ -124,7 +127,7 @@ const createNotification = (icon, message, display, id) => {
 			$(`#${selectedID}`).removeClass('is-hidden')
 		},
 		complete: () => {
-			killNotification(selectedID)
+			killNotification(selectedID, 3000)
 		}
 	})
 }
@@ -135,7 +138,7 @@ const offset = (target) => {
 	return height - rect.top
 }
 
-const killNotification = (target) => {
+const killNotification = (target, timeout) => {
 	setTimeout(() => {
 		console.log('Notification timeout: ', target)
 		const query = notifications.find(notification => {
@@ -159,7 +162,7 @@ const killNotification = (target) => {
 				}
 			})
 		}
-	}, 3000)
+	}, timeout)
 }
 
 // TODO: ADD MORE SETTINGS
@@ -193,19 +196,59 @@ $('#toggle-bolt').on('click', () => {
 
 // TODO: CHANGE ICON
 
-const createFile = (id, device, type, fileName) => {
-	console.log(device)
-	console.log(type)
+const createFile = (file) => {
+	if (file.type === 'vnd.openxmlformats-officedocument.wordprocessingml.document') {
+		file.type = 'docx'
+	} else if (file.type === 'vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+		file.type = 'xlsx'
+	} else if (file.type === 'vnd.openxmlformats-officedocument.presentationml.presentation') {
+		file.type = 'pptx'
+	}
 
 	$('.templates .template-file').clone().appendTo($('.file-list')).addClass('file-temp file').removeClass('template-file')
-	console.log($('.file-temp .device-name'))
-	$('.file-temp .device-name').html(device)
-	$('.file-temp .file-device').html(device)
-	$('.file-temp .file-type').html(type)
-	$('.file-temp').attr('id', `${id}`)
+	$('.file-temp .device-name').html(file.device)
+	$('.file-temp .file-device').html(file.device)
+	$('.file-temp .file-type').html(`${file.contentType} ${file.type}`)
+	$('.file-temp').attr('id', `${file.id}`)
 
-	if (fileName) {
-		$('.file-temp .file-name').html(fileName)
+	if (file.fileName) {
+		$('.file-temp .file-name').html(file.fileName)
+	}
+
+	let customIconPath
+	let dynamicImage = false
+
+	if (Object.keys(mapIcons).includes('default')) {
+		Object.keys(mapIcons).forEach(iconSet => {
+			if (!['default', 'image'].includes(iconSet) && mapIcons[iconSet].extensions) {
+				if (mapIcons[iconSet].extensions.includes(file.type)) {
+					customIconPath = mapIcons[iconSet].path
+					console.log(customIconPath)
+				}
+			} else if (iconSet === 'image' && mapIcons[iconSet].extensions) {
+				if (mapIcons[iconSet].dynamic && file.contentType === 'image') {
+					dynamicImage = true
+				} else {
+					dynamicImage = false
+					if (mapIcons[iconSet].extensions.includes(file.type)) {
+						customIconPath = mapIcons[iconSet].path
+						console.log(customIconPath)
+					}
+				}
+			}
+		})
+	}
+
+	if (customIconPath) {
+		$('.file-temp .icon').attr('src', `fileIcons/${customIconPath}`)
+	} else if (dynamicImage && file.path) {
+		$('.file-temp .icon').attr('src', `${file.path}`)
+	} else {
+		$('.file-temp .icon').attr('src', 'https://img2.freepng.es/20180605/wr/kisspng-computer-icons-document-clip-art-doc-5b1728d20251f7.1438356115282444340095.jpg')
+	}
+
+	if (dynamicImage) {
+		$('.file-temp .icon').addClass('is-round')
 	}
 
 	if (bolt) {
@@ -216,22 +259,33 @@ const createFile = (id, device, type, fileName) => {
 		$('.file-temp .file-level-1').addClass('is-hidden')
 	}
 
-	$('.file-temp').removeClass('file-temp is-hidden')
+	$('.file-temp').removeClass('file-temp')
+
+	anime({
+		targets: `#${file.id}`,
+		translateY: [100, 0],
+		opacity: [0, 1],
+		duration: 600,
+		easing: 'easeOutCubic',
+		begin: () => {
+			$(`#${file.id}`).removeClass('is-hidden')
+		}
+	})
 
 	files.push({
-		id: id,
-		type: type,
-		device: device
+		id: file.id,
+		type: file.contentType,
+		device: file.device
 	})
 
 	console.log({
-		id: id,
-		type: type,
-		device: device
+		id: file.id,
+		type: file.contentType,
+		device: file.device
 	})
 
 	hideQR()
-	assignFileHandlers(id)
+	assignFileHandlers(file.id)
 }
 
 // IDEA: ADD CLOUD SYNC
@@ -294,9 +348,41 @@ const removeFile = (id) => {
 	})
 
 	if (query) {
-		$(`#${query.id}`).remove()
 		files = files.filter(file => {
 			return file.id !== query.id
+		})
+
+		anime({
+			targets: `#${query.id}`,
+			duration: 600,
+			easing: 'easeOutCubic',
+			translateX: [0, -300],
+			opacity: [1, 0]
+		})
+
+		const remainingElements = $('.file').toArray()
+		const removeElement = remainingElements.findIndex(element => {
+			return $(element).attr('id') === query.id
+		})
+
+		const targetElements = []
+		remainingElements.forEach(element => {
+			const index = remainingElements.findIndex(query => query === element)
+			if (index > removeElement) {
+				targetElements.push(element)
+			}
+		})
+
+		anime({
+			targets: [targetElements],
+			duration: 600,
+			easing: 'easeOutCubic',
+			translateY: [0, -90],
+			delay: anime.stagger(200),
+			complete: () => {
+				$(`#${query.id}`).remove()
+				$('.file').css('transform', 'translateY(0px)')
+			}
 		})
 
 		ipcRenderer.send('removeFileInList', query.id)
@@ -315,15 +401,13 @@ const showFile = (id) => {
 
 ipcRenderer.on('requestDownload', (e, file) => {
 	if (file) {
-		console.log(file.id, file.device, file.contentType)
-		createFile(file.id, file.device, file.contentType)
+		createFile(file)
 	}
 })
 
 ipcRenderer.on('createDownload', (e, file) => {
 	if (file) {
-		console.log(file.id, file.device, file.contentType, file.fileName)
-		createFile(file.id, file.device, file.contentType, file.fileName)
+		createFile(file)
 	}
 })
 
@@ -336,6 +420,7 @@ ipcRenderer.on('downloadFinish', (e, args) => {
 		if (query) {
 			setTimeout(() => {
 				$(`#${query.id} .file-name`).html(args.fileName)
+				$(`#${query.id} .icon`).attr('src', `${args.path}`)
 				$(`#${query.id} .file-level-1`).removeClass('is-hidden')
 				$(`#${query.id} .file-level-2`).addClass('is-hidden')
 				$(`#${query.id} .loading-wrapper`).addClass('is-hidden')

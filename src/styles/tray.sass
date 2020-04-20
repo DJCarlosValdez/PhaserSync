@@ -27,7 +27,7 @@ h1, h2, h3, h4, h5, h6, p
     flex-direction: column
 
     .upper-bar
-        position: absolute
+        position: fixed
         height: 22%
         width: 100%
         display: flex
@@ -36,6 +36,8 @@ h1, h2, h3, h4, h5, h6, p
         justify-content: space-between
         box-shadow: $box-shadow-2
         padding: 0 20px
+        background-color: white
+        z-index: 70000
 
         .icons-wrapper
             display: flex
@@ -81,14 +83,22 @@ h1, h2, h3, h4, h5, h6, p
             align-items: center
             justify-content: flex-start
             height: 70px
+            min-height: 70px
             width: 77%
             border-radius: 17px
             background-color: white  
             box-shadow: $box-shadow-1
             padding: 0px 20px
-            img
+            margin-bottom: 20px
+
+            .icon
+                border-radius: 17px
                 height: 50px
                 width: 50px
+                margin-top: 3px
+                &.is-round
+                    border-radius: 12px
+
             .name-wrapper
                 margin-left: 20px
                 h1
@@ -106,6 +116,9 @@ h1, h2, h3, h4, h5, h6, p
                     white-space: nowrap
                     overflow: hidden
                     font-size: 1.25rem
+
+            .file-type
+                text-transform: capitalize
 
             .accept-wrapper, .remove-wrapper
                 display: flex
@@ -161,6 +174,7 @@ h1, h2, h3, h4, h5, h6, p
         background-color: black
         opacity: 0.4
         transition: 0.4s
+        z-index: 80000
         &:hover
             cursor: pointer
     .modal-box
@@ -171,19 +185,20 @@ h1, h2, h3, h4, h5, h6, p
         width: 250px
         border-radius: 20px
         background-color: white
-        z-index: 9
+        z-index: 90000
         .qr-code
             display: flex
             justify-content: center
             align-items: center
             height: inherit
             width: inherit
+            z-index: 90001
             svg
                 height: 85%
                 width: 85%
 
 .notification-bar
-    position: absolute
+    position: fixed
     display: flex
     flex-direction: column
     justify-content: center
@@ -191,6 +206,7 @@ h1, h2, h3, h4, h5, h6, p
     bottom: 0px
     width: 100%
     transition: 0.4s
+    z-index: 70000
     .notification-box
         display: flex
         justify-content: center
@@ -200,7 +216,8 @@ h1, h2, h3, h4, h5, h6, p
         margin-bottom: 20px
         border-radius: 14px
         box-shadow: $box-shadow-2
-
+        background-color: white
+        z-index: inherit
         .message
             margin-left: 20px
 

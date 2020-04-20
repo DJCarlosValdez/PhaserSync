@@ -1,0 +1,19 @@
+{
+    "default": {
+        "extensions": [],
+        "path": "Document.png"
+    },
+    "image": {
+        "extensions": ["jpeg", "jpg", "heic", "png", "bmp", "gif"],
+        "path": "Image.png",
+        "dynamic": true
+    },
+    "document": {
+        "extensions": ["vnd.openxmlformats-officedocument.wordprocessingml.document", "vnd.openxmlformats-officedocument.spreadsheetml.sheet", "vnd.openxmlformats-officedocument.presentationml.presentation", "docx", "xlsx", "pptx"],
+        "path": "Document.png"
+    },
+    "video": {
+        "extensions": ["mp4", "mkv"],
+        "path": "Video.png"
+    }
+}

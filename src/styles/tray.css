@@ -35,7 +35,7 @@ h1, h2, h3, h4, h5, h6, p {
 }
 
 .screen .upper-bar {
-  position: absolute;
+  position: fixed;
   height: 22%;
   width: 100%;
   display: -webkit-box;
@@ -54,6 +54,8 @@ h1, h2, h3, h4, h5, h6, p {
   -webkit-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   padding: 0 20px;
+  background-color: white;
+  z-index: 70000;
 }
 
 .screen .upper-bar .icons-wrapper {
@@ -142,17 +144,25 @@ h1, h2, h3, h4, h5, h6, p {
       -ms-flex-pack: start;
           justify-content: flex-start;
   height: 70px;
+  min-height: 70px;
   width: 77%;
   border-radius: 17px;
   background-color: white;
   -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
           box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   padding: 0px 20px;
+  margin-bottom: 20px;
 }
 
-.screen .file-list .file img {
+.screen .file-list .file .icon {
+  border-radius: 17px;
   height: 50px;
   width: 50px;
+  margin-top: 3px;
+}
+
+.screen .file-list .file .icon.is-round {
+  border-radius: 12px;
 }
 
 .screen .file-list .file .name-wrapper {
@@ -176,6 +186,10 @@ h1, h2, h3, h4, h5, h6, p {
   white-space: nowrap;
   overflow: hidden;
   font-size: 1.25rem;
+}
+
+.screen .file-list .file .file-type {
+  text-transform: capitalize;
 }
 
 .screen .file-list .file .accept-wrapper, .screen .file-list .file .remove-wrapper {
@@ -274,6 +288,7 @@ h1, h2, h3, h4, h5, h6, p {
   opacity: 0.4;
   -webkit-transition: 0.4s;
   transition: 0.4s;
+  z-index: 80000;
 }
 
 .modal .modal-bg:hover {
@@ -294,7 +309,7 @@ h1, h2, h3, h4, h5, h6, p {
   width: 250px;
   border-radius: 20px;
   background-color: white;
-  z-index: 9;
+  z-index: 90000;
 }
 
 .modal .modal-box .qr-code {
@@ -309,6 +324,7 @@ h1, h2, h3, h4, h5, h6, p {
           align-items: center;
   height: inherit;
   width: inherit;
+  z-index: 90001;
 }
 
 .modal .modal-box .qr-code svg {
@@ -317,7 +333,7 @@ h1, h2, h3, h4, h5, h6, p {
 }
 
 .notification-bar {
-  position: absolute;
+  position: fixed;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -335,6 +351,7 @@ h1, h2, h3, h4, h5, h6, p {
   width: 100%;
   -webkit-transition: 0.4s;
   transition: 0.4s;
+  z-index: 70000;
 }
 
 .notification-bar .notification-box {
@@ -353,6 +370,8 @@ h1, h2, h3, h4, h5, h6, p {
   border-radius: 14px;
   -webkit-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+  background-color: white;
+  z-index: inherit;
 }
 
 .notification-bar .notification-box .message {

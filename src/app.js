@@ -2,7 +2,6 @@ const electron = require('electron')
 const { app, dialog, BrowserWindow, Menu, Tray, ipcMain, shell } = electron
 const fs = require('fs')
 const internalIP = require('internal-ip')
-// const moment = require('moment')
 const express = require('express')
 const server = express()
 
@@ -15,6 +14,10 @@ const fileSync = require('./routes/fileSync')
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
 	app.quit()
 }
+
+app.setLoginItemSettings({
+	openAtLogin: true
+})
 
 const bodyParser = require('body-parser')
 
@@ -41,7 +44,7 @@ server.use(bodyParser.raw({
 server.use(bodyParser.text())
 
 let mainWindow, tray
-let settings, ip
+let settings, iconsMap, ip
 let files = []
 /**
  * @param {('setup'|'server')} screen The screen to create
@@ -88,7 +91,7 @@ const createWindow = (screen) => {
 		} else if (screen === 'server') {
 			mainWindow.loadURL(`file://${__dirname}/main.html`)
 			// Uncomment when you finally fixed the code - Probably never...
-			// windowOutside()
+			windowOutside()
 		}
 
 		mainWindow.on('closed', () => {
@@ -163,6 +166,10 @@ const generateSVGQR = () => {
 
 app.on('ready', () => {
 	ip = internalIP.v4.sync()
+	if (fs.existsSync(`${__dirname}/fileIcons/map.json`)) {
+		const dataJSON = fs.readFileSync(`${__dirname}/fileIcons/map.json`)
+		iconsMap = JSON.parse(dataJSON)
+	}
 
 	if (fs.existsSync(`${__dirname}/settings.json`)) {
 		const dataJSON = fs.readFileSync(`${__dirname}/settings.json`)
@@ -195,34 +202,49 @@ server.post('/sendmedia', (req, res) => {
 		const contentType = req.headers['content-type'].split('/')[0]
 
 		if (contentType === 'image' || contentType === 'video') {
+			const id = `file${generateRandomCode(8)}`
 			const file = {
 				contentType: contentType,
 				type: req.headers['content-type'].split('/')[1],
 				device: req.headers.device,
-				id: `file${generateRandomCode(8)}`,
+				id: id,
 				req: req,
 				res: res,
 				fileName: undefined,
 				path: undefined
 			}
 
+			const rendererFile = {
+				contentType: contentType,
+				type: req.headers['content-type'].split('/')[1],
+				device: req.headers.device,
+				id: id,
+				fileName: undefined,
+				path: undefined
+			}
+
 			if (!file.device) {
 				file.device = 'UnknownDevice'
+				file.rendererFile = 'UnknownDevice'
 			}
 
 			if (bolt) {
 				mediaSync(req, res, settings.paths.images, settings.paths.videos).then(result => {
 					file.fileName = result.fileName
 					file.path = result.path
+
+					rendererFile.fileName = result.fileName
+					rendererFile.path = result.path
+
 					files.push(file)
-					mainWindow.webContents.send('createDownload', file)
+					mainWindow.webContents.send('createDownload', rendererFile)
 					console.log('Media Saved!')
 				}).catch(err => {
 					console.error(err)
 				})
 			} else {
 				files.push(file)
-				mainWindow.webContents.send('requestDownload', file)
+				mainWindow.webContents.send('requestDownload', rendererFile)
 			}
 		} else {
 			res.status(400).send('Invalid Content Type')
@@ -235,36 +257,50 @@ server.post('/sendmedia', (req, res) => {
 server.post('/sendfile', (req, res) => {
 	if (portal) {
 		const contentType = req.headers['content-type'].split('/')[0]
-
 		if (contentType === 'application' || contentType === 'audio') {
+			const id = `file${generateRandomCode(8)}`
 			const file = {
 				contentType: contentType,
 				type: req.headers['content-type'].split('/')[1],
 				device: req.headers.device,
-				id: `file${generateRandomCode(8)}`,
+				id: id,
 				req: req,
 				res: res,
 				fileName: undefined,
 				path: undefined
 			}
 
+			const rendererFile = {
+				contentType: contentType,
+				type: req.headers['content-type'].split('/')[1],
+				device: req.headers.device,
+				id: id,
+				fileName: undefined,
+				path: undefined
+			}
+
 			if (!file.device) {
 				file.device = 'UnknownDevice'
+				rendererFile.device = 'UnknownDevice'
 			}
 
 			if (bolt) {
 				fileSync(req, res, settings.paths.files).then(result => {
 					file.fileName = result.fileName
 					file.path = result.path
+
+					rendererFile.fileName = result.fileName
+					rendererFile.path = result.path
+
 					files.push(file)
-					mainWindow.webContents.send('createDownload', file)
+					mainWindow.webContents.send('createDownload', rendererFile)
 					console.log('File Saved!')
 				}).catch(err => {
 					console.error(err)
 				})
 			} else {
 				files.push(file)
-				mainWindow.webContents.send('requestDownload', file)
+				mainWindow.webContents.send('requestDownload', rendererFile)
 			}
 		} else {
 			res.status(400).send('Invalid Content Type')
@@ -312,7 +348,7 @@ ipcMain.on('chooseDirectory', (event, args) => {
 
 ipcMain.on('loadSettingsReq', (e) => {
 	if (settings) {
-		e.reply('loadSettingsRes', [settings, ip, generateSVGQR()])
+		e.reply('loadSettingsRes', [settings, iconsMap, ip, generateSVGQR()])
 	}
 })
 
@@ -351,7 +387,7 @@ ipcMain.on('allowDownload', (e, args) => {
 					files[index].path = result.path
 
 					console.log('Media Saved')
-					mainWindow.webContents.send('downloadFinish', { id: query.id, fileName: result.fileName })
+					mainWindow.webContents.send('downloadFinish', { id: query.id, fileName: result.fileName, path: result.path })
 				}).catch(err => {
 					console.error(err)
 				})
@@ -361,7 +397,7 @@ ipcMain.on('allowDownload', (e, args) => {
 					files[index].path = result.path
 
 					console.log('Media Saved')
-					mainWindow.webContents.send('downloadFinish', { id: query.id, fileName: result.fileName })
+					mainWindow.webContents.send('downloadFinish', { id: query.id, fileName: result.fileName, path: result.path })
 				}).catch(err => {
 					console.error(err)
 				})

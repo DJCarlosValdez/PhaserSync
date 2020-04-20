@@ -25,7 +25,8 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "PhaserSync"
+            "name": "PhaserSync",
+            "iconUrl": "file:///C:/Users/Carlos Valdez/Documents/GitHub/PhaserSync/src/packageIcon.ico"
           }
         },
         {
@@ -53,7 +54,6 @@
     "internal-ip": "^6.0.0",
     "jump.js": "^1.0.2",
     "moment": "^2.24.0",
-    "open": "^7.0.3",
     "qrcode": "^1.4.4"
   },
   "devDependencies": {
