@@ -115,17 +115,20 @@ let path
 
 ipcRenderer.on('inputPath', (e, args) => {
 	path = args
+	console.log(path)
 })
 
 $('#btn-path-continue').on('click', () => {
 	if (path) {
+		settings.paths.root = path
+		settings.paths.images = `${path}\\Images`
+		settings.paths.videos = `${path}\\Videos`
+		settings.paths.files = `${path}\\Files`
+		settings.network.port = 3100
+
 		if (wizard === 'expert') {
 			changeScreen('#config-expert-screen')
 		} else {
-			settings.paths.root = path
-			settings.paths.images = `${path}\\Images`
-			settings.paths.videos = `${path}\\Videos`
-			settings.paths.files = `${path}\\Files`
 			setUp()
 		}
 	} else {
